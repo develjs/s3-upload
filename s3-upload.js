@@ -1,6 +1,6 @@
 /**
  * Upload folder to aws s3 bucket with preset mime/type and skip files with same hash
- * > node upload.js --bucket BACKET_NAME [--root <source folder, default: ./dist> --exclude <minimach mask>]
+ * > node upload.js --bucket BACKET_NAME [--root <source folder, default: ./dist> --exclude <minimach mask>;<minimach mask>...]
  * 
  * Check AWS credentials before:
  *   ~/.aws/credentials
@@ -69,7 +69,9 @@ function upload(list) {
         tread = tread.then(_ => new Promise((resolve, reject) => {
             let Key = path.relative(ROOT, file).replace(/\\/g,'/');
 
-            if (EXCLUDE && minimatch(file, EXCLUDE, {matchBase:true, dot: true})){
+            
+            if (EXCLUDE && EXCLUDE.split(';').reduce((acc,mask)=> acc || minimatch(Key, mask, {matchBase:true, dot: true}), false) // split mask by ;
+            ){
                 resolve();
                 return;
             }
